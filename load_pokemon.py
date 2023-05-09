@@ -1,6 +1,8 @@
 import sqlite3
 from pymongo import MongoClient
 
+import time
+
 locs = []
 
 con = sqlite3.connect('../sql/tp/pokedex.sqlite') # TODO change path
@@ -49,18 +51,6 @@ for [id, identifier, species_id, weight, height] in con.cursor().execute('select
 			if encounter != None:
 				loc['encounters'].append(encounter)
 
-	# # add area list to object
-	# areasQuery = 'select id, identifier from location_areas where location_id = "{}"'.format(id)
-	# for [areaId, areaIdentifier] in con.cursor().execute(areasQuery):
-	# 	if areaIdentifier != None:
-	# 		loc['areas'].append(areaIdentifier)
-
-	# 	# add Pokémon encounter list to location (aggregating for all areas in the location)
-	# 	encountersQuery = 'select distinct p.identifier from encounters as e, pokemon as p where e.pokemon_id = p.id and e.location_area_id = "{}"'.format(areaId)
-	# 	for [pokemonIdentifier] in con.cursor().execute(encountersQuery):
-	# 		if not pokemonIdentifier in loc['encounters']:
-	# 			loc['encounters'].append(pokemonIdentifier)
-
 	# append object to list of locations
 	locs.append(loc)
 
@@ -69,12 +59,17 @@ for [id, identifier, species_id, weight, height] in con.cursor().execute('select
 print(locs[0])
 
 # load all objects to MongoDB using pyMongo
-# client = MongoClient('mongodb://localhost:27017/')
-# pokedex = client['pokedex']['inventory']
+client = MongoClient('mongodb://localhost:27017/')
+pokedex = client['pokedex']['inventory']
 
-# for loc in locs:
-# 	loc['_id'] = loc['id'] # _id is interpreted by MongoDB as the document's key
-# 	pokedex.insert_one(loc)
+start = time.time()
+
+for loc in locs:
+	loc['_id'] = loc['id'] # _id is interpreted by MongoDB as the document's key
+	pokedex.insert_one(loc)
+
+end = time.time()
+print("Temps d'exécution pour l'import dans MongoDB: ", end - start, "s")
 
 # TODO query MongoDB using pokedex.find_one() and pokedex.find()
 # see also https://pymongo.readthedocs.io/en/stable/tutorial.html#getting-a-single-document-with-find-one
