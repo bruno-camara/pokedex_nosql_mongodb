@@ -11,14 +11,6 @@ for [id, identifier, species_id, weight, height] in con.cursor().execute('select
 	# create object with basic entries
 	loc = { 'id': id, 'identifier': identifier, 'weight' : weight, 'height' : height, 'types': [], 'moves': {}, 'encounters': [] }
 
-	# # add name entry to object (as language map)
-	# langQuery = 'select local_language_id, name from location_names where local_language_id in (5, 9) and location_id = "{}"'.format(id)
-	# for [langId, name] in con.cursor().execute(langQuery):
-	# 	if langId == 5:
-	# 		loc['name']['fr'] = name
-	# 	elif langId == 9:
-	# 		loc['name']['en'] = name
-
 	# add move entry to object
 	if species_id != None:
 		# moveQuery = 'select move_names.name from pokemon_moves inner join move_names on pokemon_moves.move_id=move_names.move_id where pokemon_moves.pokemon_id = "{}" and move_names.local_language_id=5;'.format(species_id)
@@ -70,6 +62,7 @@ for loc in locs:
 
 end = time.time()
 print("Temps d'exécution pour l'import dans MongoDB: ", end - start, "s")
+# 1.2692921161651611 seconds
 
 # TODO query MongoDB using pokedex.find_one() and pokedex.find()
 # see also https://pymongo.readthedocs.io/en/stable/tutorial.html#getting-a-single-document-with-find-one
